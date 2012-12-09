@@ -546,7 +546,11 @@ namespace hash is cloned to prevent any variable changes made in the included
 template from interfering with existing variables. The C<PROCESS> option bypasses
 the localisation step altogether making it slightly faster, but requiring
 greater attention to the possibility of side effects caused by creating or
-changing any variables within the processed template.
+changing any variables within the processed template. 
+Setting C<$Template::Stash::EXPLICIT_PARAMS> to 1 will prevent template variables 
+from appearing globally throughout the template hierarchy; instead, only  
+explicitly passed parameters will be passed into child templates. 
+
 
     [% BLOCK change_name %]
        [% name = 'bar' %]

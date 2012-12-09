@@ -25,11 +25,12 @@ use Template::VMethods;
 use Template::Exception;
 use Scalar::Util qw( blessed reftype );
 
-our $VERSION    = 2.91;
-our $DEBUG      = 0 unless defined $DEBUG;
-our $PRIVATE    = qr/^[_.]/;
-our $UNDEF_TYPE = 'var.undef';
-our $UNDEF_INFO = 'undefined variable: %s';
+our $VERSION            = 2.91;
+our $DEBUG              = 0 unless defined $DEBUG;
+our $PRIVATE            = qr/^[_.]/;
+our $UNDEF_TYPE         = 'var.undef';
+our $UNDEF_INFO         = 'undefined variable: %s';
+our $EXPLICIT_PARAMS    = 0 unless defined $EXPLICIT_PARAMS;
 
 # alias _dotop() to dotop() so that we have a consistent method name
 # between the Perl and XS stash implementations
@@ -149,6 +150,8 @@ sub clone {
     my ($self, $params) = @_;
     $params ||= { };
 
+    my %self_attrs = %$self;
+
     # look out for magical 'import' argument which imports another hash
     my $import = $params->{ import };
     if (defined $import && ref $import eq 'HASH') {
@@ -158,8 +161,13 @@ sub clone {
         undef $import;
     }
 
+    if( $EXPLICIT_PARAMS ) {
+        $params = { %$self, %$params } unless defined $self->{_PARENT};
+        %self_attrs = ( );
+    }
+
     my $clone = bless { 
-        %$self,         # copy all parent members
+        %self_attrs,    # copy all parent members
         %$params,       # copy all new data
         '_PARENT' => $self,     # link to parent
     }, ref $self;
